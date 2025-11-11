@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Riya Barman's premium weather app with advanced UI and real-time data">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Riya Weather">
+    
+    <title>Riya Barman Weather App - Premium Edition</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-background" id="animatedBackground">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+    
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-cloud-sun-rain"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1 class="app-title">Riya Barman Weather</h1>
+                        <p class="app-subtitle">Premium Edition</p>
+                    </div>
+                </div>
+                
+                <div class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+            
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input 
+                            type="text" 
+                            id="cityInput" 
+                            placeholder="Search city or zip code..."
+                            autocomplete="off"
+                        >
+                        <button id="searchBtn" class="search-btn">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    
+                    <button id="locationBtn" class="location-btn" title="Use my location">
+                        <i class="fas fa-location-crosshairs"></i>
+                        <span>My Location</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Loading Animation -->
+        <div class="loading-container" id="loadingContainer">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <p class="loading-text">Fetching weather data...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="error-content">
+                <h3>Oops! Something went wrong</h3>
+                <p id="errorText">City not found. Please try again.</p>
+            </div>
+            <button class="error-close" onclick="closeError()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Weather Display -->
+        <main class="weather-container" id="weatherContainer">
+            <!-- Main Weather Card -->
+            <div class="main-weather-card">
+                <div class="weather-header">
+                    <div class="location-info">
+                        <h2 class="city-name" id="cityName">Loading...</h2>
+                        <p class="country-date">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="country"></span>
+                            <span class="separator">•</span>
+                            <span id="dateTime"></span>
+                        </p>
+                    </div>
+                    
+                    <button class="temp-toggle" id="tempToggle">
+                        <span class="temp-unit active">°C</span>
+                        <span class="toggle-slider"></span>
+                        <span class="temp-unit">°F</span>
+                    </button>
+                </div>
+                
+                <div class="weather-main">
+                    <div class="weather-icon-large" id="weatherIconContainer">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    
+                    <div class="weather-stats">
+                        <div class="temperature-display">
+                            <h1 class="temperature" id="temperature">--°</h1>
+                            <div class="temp-range">
+                                <span id="tempMax">--°</span>
+                                <span class="separator">/</span>
+                                <span id="tempMin">--°</span>
+                            </div>
+                        </div>
+                        
+                        <div class="weather-description-box">
+                            <p class="weather-description" id="weatherDescription">Loading...</p>
+                            <p class="feels-like">
+                                Feels like <span id="feelsLike">--°</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sun Times -->
+                <div class="sun-times">
+                    <div class="sun-time-item">
+                        <i class="fas fa-sunrise"></i>
+                        <div>
+                            <p class="sun-label">Sunrise</p>
+                            <p class="sun-value" id="sunrise">--:--</p>
+                        </div>
+                    </div>
+                    <div class="sun-time-divider"></div>
+                    <div class="sun-time-item">
+                        <i class="fas fa-sunset"></i>
+                        <div>
+                            <p class="sun-label">Sunset</p>
+                            <p class="sun-value" id="sunset">--:--</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Details Grid -->
+            <div class="weather-details-grid">
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <i class="fas fa-tint"></i>
+                        <span>Humidity</span>
+                    </div>
+                    <div class="detail-value" id="humidity">--%</div>
+                    <div class="detail-progress">
+                        <div class="progress-bar" id="humidityBar"></div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <i class="fas fa-wind"></i>
+                        <span>Wind Speed</span>
+                    </div>
+                    <div class="detail-value" id="windSpeed">-- km/h</div>
+                    <p class="detail-subtitle" id="windDirection">--</p>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <i class="fas fa-eye"></i>
+                        <span>Visibility</span>
+                    </div>
+                    <div class="detail-value" id="visibility">-- km</div>
+                    <p class="detail-subtitle">Visibility range</p>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <i class="fas fa-gauge-high"></i>
+                        <span>Pressure</span>
+                    </div>
+                    <div class="detail-value" id="pressure">-- hPa</div>
+                    <p class="detail-subtitle">Atmospheric</p>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <i class="fas fa-cloud"></i>
+                        <span>Cloudiness</span>
+                    </div>
+                    <div class="detail-value" id="cloudiness">--%</div>
+                    <div class="detail-progress">
+                        <div class="progress-bar" id="cloudinessBar"></div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <i class="fas fa-water"></i>
+                        <span>Dew Point</span>
+                    </div>
+                    <div class="detail-value" id="dewPoint">--°</div>
+                    <p class="detail-subtitle">Calculated</p>
+                </div>
+            </div>
+
+            <!-- Hourly Forecast -->
+            <div class="forecast-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-clock"></i> 24-Hour Forecast</h3>
+                </div>
+                <div class="forecast-scroll" id="forecastContainer">
+                    <!-- Forecast items will be added here dynamically -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>
+                <i class="fas fa-heart" style="color: #ff6b6b;"></i>
+                Made with passion by Riya Barman
+                <span class="separator">•</span>
+                Data by OpenWeatherMap
+            </p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
